@@ -126,8 +126,38 @@ def get_similar_teams(all_teams_df: pd.DataFrame, target_df: pd.DataFrame):
 
 
 if __name__ == '__main__':
+    '''
+    NOTE to self:
+
+    This model, the 'simpleton' model, looks at all the team stats that don't have the word "for" in them, 
+    compares these stats with the target team (the team the player is playing against), and crudely decides 
+    how similar the teams are based on the mean of each statistic and a hard-coded deviation percentage 
+    (i.e. 5% more or less). Then, the model decides which teams to use in the calculation of mean SOG and 
+    SA per game for the player based on a hard-coded minimum number of similarities. 
+    
+    So, for example (at the time of writing, Feb 1/23)... 
+      Patrice Bergeron vs. TOR with deviation=5% and minimum_similar_stats=38, we get this:
+
+            similar teams: ['SEA', 'NYR', 'BOS']
+                    I_F_shotAttempts  I_F_shotsOnGoal
+            count          3.000000              3.0
+            mean           6.333333              4.0
+            std            1.527525              1.0
+            min            5.000000              3.0
+            25%            5.500000              3.5
+            50%            6.000000              4.0
+            75%            7.000000              4.5
+            max            8.000000              5.0
+
+    Next steps:
+      - selecting statistics (at very least, getting rid of irrelevant ones)
+      - weighting statistics (possible ML application?)
+      - more data than just the team they're playing against... i.e. line combos, injuries, etc. (see top of file)
+
+    '''
+
     rival_team = 'TOR'
-    player_id = '8475786' # TODO: will use this later...
+    player_id = '8475786'  # TODO: will use this later...
 
     gbg_player_df = get_player_gbg(player_id=player_id)
 
@@ -143,7 +173,6 @@ if __name__ == '__main__':
             teams_to_look_at.append(team)
 
     gbg_player_df = gbg_player_df.loc[gbg_player_df['opposingTeam'].isin(teams_to_look_at)]
-    
+
     print(f'similar teams: {teams_to_look_at}')
     print(gbg_player_df.describe())
-    
