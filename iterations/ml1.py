@@ -92,13 +92,19 @@ if __name__ == '__main__':
 
         - who is hero playing against tonight (team)? historically, how does that affect hero's SOG?
               - can we group teams into categories based on ranking, blocked shots, +other stats?
-                      then ask: how does hero play against teams from group B?
+                      then ask: how does hero play against teams from group X?
 
-        - expected TOI
-          expected PP TOI
-          expected PK TOI
-          expected giveaways
-          expected takeways
+                      
+
+          Relative percieved importance (RPI) - Stat
+          *** - TOI
+          *** - PP TOI
+          *** - Zone starts - More offensive zone starts generally lead to more shot attempts for;
+          *** - Quality of competition 
+          *** - Quality of teammates
+          **  - Takeways
+          *   - PK TOI
+          *   - Giveaways
 
         |^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^|
         |  all these "expected" stats are their own time series, right??
@@ -118,10 +124,12 @@ if __name__ == '__main__':
       |
       |  What if we ran feature selection on the original
       |  player + team df to find the features that were most
-      |  predictive of hero's SOG?
-      |
-      |   then use those to build the "expected" features list as
-      |   shown above.
+      |  predictive of hero's SOG? I.e., in the first pass, 
+      |  treat this as a tabular problem, not a time series problem.
+      |  
+      |   then use those to build the "expected" features list (as in
+      |   the example above), which we will apply to the time-series
+      |   problem of "how many SOG will X have against team X tonight?
       |
       | update:
       |   this is often called "two-stage feature selection"
@@ -139,6 +147,45 @@ if __name__ == '__main__':
         - KNN regression
       Update: 
         Sike... this was looking checking accuracy for a classification problem
+
+
+    
+      ********************************************************************************
+      *
+      *   update Mar 7 2023.
+            This isn't really a time-series problem.
+            Time series asks, "based on previous performance, how many SOGs will player X have?
+            But that (assumably) can be answered by averaging previous stats... 
+      *
+      *
+      ********************************************************************************
+
+
+      Here is the plan (for now)
+        We'll look at 5 main things: TOI, PP TOI, zone starts, quality of competition, quality of teammates
+          * each of these may require many "features"
+
+        - TOI
+          * we train the model, giving it the line that the player is on (because we will know this when it comes time to predict)
+              * we can calculate if line is 1st, 2nd, 3rd, etc. by comparing "ice_time" to other lines for that game_id
+              * again, we will know this information during predict time via something like dailyfaceoff.com
+              * note, there are related stats to ice_time that we could use instead, such as I_F_shifts. Will have to 
+                test to see how it affects the results!
+        - PP TOI
+          * we get this directly from player_data. I don't know how not knowing the exact PP line combo will affect things, 
+            but we're gonna try this for now.
+        - ZONE STARTS
+          * we get this directly from player_data, using stats such as I_F_oZoneShiftStarts, I_F_dZoneShiftStarts, etc.
+        - QUALITY OF COMPETITION
+          * 
+        - QUALITY OF TEAMMATES
+
+        
+        xTOI
+            extrapolated from Line #{1,2,3,4}
+
+        xPPTOI
+            -
     '''
 
     # read CSV
